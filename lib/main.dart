@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
-import 'screens/home/home_screen.dart';
+import 'main_screen.dart';
 
 void main() {
   runApp(const NutriCommunityApp());
@@ -20,7 +20,7 @@ class NutriCommunityApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/main': (context) => const MainScreen(), // ganti dari /home
       },
     );
   }

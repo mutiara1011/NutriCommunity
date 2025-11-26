@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
     
+  google_fonts: ^6.2.0
   shared_preferences: ^2.2.2
 
 
@@ -62,6 +63,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/rank/
 
   # To add assets to your application, add an assets section, like this:
   
