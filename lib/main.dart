@@ -3,6 +3,7 @@ import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'main_screen.dart';
+import 'screens/history/history_screen_body.dart';
 
 void main() {
   runApp(const NutriCommunityApp());
@@ -20,7 +21,8 @@ class NutriCommunityApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
-        '/main': (context) => const MainScreen(), // ganti dari /home
+        '/main': (context) => const MainScreen(),
+        '/history': (context) => const HistoryScreenBody(),
       },
     );
   }

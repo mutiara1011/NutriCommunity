@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ketapang/screens/profile/profile_screen_body.dart';
 import 'screens/history/history_screen_body.dart';
 import 'screens/home/home_screen_body.dart';
 import 'screens/community/community_screen_body.dart';
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreenBody(),
     const CommunityScreenBody(),
     const HistoryScreenBody(),
-    const Center(child: Text("Settings Page")),
+    const ProfileScreenBody(),
   ];
 
   @override

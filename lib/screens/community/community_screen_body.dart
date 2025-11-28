@@ -33,31 +33,84 @@ class CommunityScreenBody extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 10),
-
           // CUSTOM TAB BAR SESUAI DESAIN
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFE5CA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              indicator: BoxDecoration(
-                color: const Color(0xFFFFB300),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              tabs: const [
-                Tab(text: "Rank"),
-                Tab(text: "Post"),
-                Tab(text: "Events"),
+              color: const Color(0xFF398A57),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 6),
+                ),
               ],
             ),
-          ),
+            child: Container(
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+              decoration: BoxDecoration(color: const Color(0xFFFFFBEA)),
+              child: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: const Color(0xFFF0AB4C),
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    topLeft: Radius.circular(12),
+                  ),
+                ),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                dividerColor: Colors.grey,
 
-          const SizedBox(height: 10),
+                tabs: [
+                  // TAB RANK
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      "Rank",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  // TAB POST
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      "Post",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  // TAB EVENTS
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      "Events",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           Expanded(
             child: TabBarView(

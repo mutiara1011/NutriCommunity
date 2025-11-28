@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class HistoryScreenBody extends StatelessWidget {
-  const HistoryScreenBody({super.key});
+  final bool showBackButton; // PARAMETER BARU
+
+  const HistoryScreenBody({
+    super.key,
+    this.showBackButton = false, // default: tidak ada tombol back
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +19,22 @@ class HistoryScreenBody extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4EC),
+      backgroundColor: const Color(0xFFFFFBEA),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
+            // 🔙 BACK BUTTON (HANYA MUNCUL JIKA showBackButton = true)
+            if (showBackButton)
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 12),
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.arrow_back, size: 28),
+                ),
+              ),
+
+            // TITLE (selalu tampil)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: const Text(
@@ -32,6 +47,7 @@ class HistoryScreenBody extends StatelessWidget {
               ),
             ),
 
+            // LIST HISTORY
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -53,7 +69,7 @@ class HistoryScreenBody extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // LEFT
+                        // LEFT SIDE
                         Row(
                           children: [
                             Container(
@@ -71,6 +87,7 @@ class HistoryScreenBody extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 14),
+
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -94,7 +111,7 @@ class HistoryScreenBody extends StatelessWidget {
                           ],
                         ),
 
-                        // RIGHT (XP)
+                        // RIGHT SIDE
                         item["xp"] != null
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
