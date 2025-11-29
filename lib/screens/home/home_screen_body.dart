@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import '../quest/camera_screen.dart';
+import 'education_detail_screen.dart';
 
 class HomeScreenBody extends StatelessWidget {
   const HomeScreenBody({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // DATA REKOMENDASI EDUKASI (non-nullable)
+    final List<Map<String, String>> recommendations = [
+      {
+        "title": "Makanan sehat yang mudah dilakukan",
+        "desc":
+            "Tambahkan 1 porsi buah setiap hari untuk meningkatkan asupan vitamin. Pilih buah seperti apel, pepaya, atau pisang yang mudah ditemukan.",
+      },
+      {
+        "title": "Pentingnya minum air putih",
+        "desc":
+            "Minum minimal 8 gelas air per hari membantu menjaga metabolisme tubuh serta meningkatkan konsentrasi.",
+      },
+    ];
+
     // DATA QUEST
     final quests = [
       {"title": "Minum 1 gelas air", "xp": 10},
@@ -13,7 +29,6 @@ class HomeScreenBody extends StatelessWidget {
       {"title": "Makan 1 Porsi Buah", "xp": 15},
     ];
 
-    // STREAK DATA
     int currentStreak = 5;
     int maxStreak = 10;
     double streakProgress = currentStreak / maxStreak;
@@ -25,7 +40,7 @@ class HomeScreenBody extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
 
-            // ================== HEADER =====================
+            // HEADER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
@@ -53,10 +68,10 @@ class HomeScreenBody extends StatelessWidget {
               ),
             ),
 
-            // ================ STREAK CARD ===================
+            // STREAK CARD
             Container(
               padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(color: const Color(0xFFFFFBEA)),
+              decoration: const BoxDecoration(color: Color(0xFFFFFBEA)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -76,22 +91,19 @@ class HomeScreenBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
 
-                      // --- STREAK BAR HERE ---
+                      // Progress bar
                       Stack(
                         children: [
-                          // Background bar
                           Container(
                             width: 140,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: const Color(0xFFD9D9D9),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-
-                          // Filled bar (progress)
                           Container(
-                            width: 140 * (streakProgress),
+                            width: 140 * streakProgress,
                             height: 10,
                             decoration: BoxDecoration(
                               color: const Color(0xFF398A57),
@@ -103,7 +115,7 @@ class HomeScreenBody extends StatelessWidget {
                     ],
                   ),
 
-                  // XP CARD
+                  // XP
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
@@ -128,10 +140,10 @@ class HomeScreenBody extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // =================== RECOMMENDATION =======================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Text(
+            // ================= RECOMMENDATION =================
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
                 "Today's recommendations",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
               ),
@@ -139,26 +151,43 @@ class HomeScreenBody extends StatelessWidget {
             const SizedBox(height: 15),
 
             Column(
-              children: List.generate(2, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 7,
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8EED6),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        "Recommendation item",
-                        style: TextStyle(fontSize: 16),
+              children: List.generate(recommendations.length, (index) {
+                final item = recommendations[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EducationDetailScreen(
+                          title: item["title"]!, // sudah non-nullable
+                          desc: item["desc"]!,
+                        ),
                       ),
-                      Icon(Icons.arrow_forward_ios_rounded, size: 18),
-                    ],
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 7,
+                    ),
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8EED6),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item["title"]!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+                      ],
+                    ),
                   ),
                 );
               }),
@@ -166,10 +195,10 @@ class HomeScreenBody extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // =================== QUICK QUEST =======================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Text(
+            // =============== QUICK QUEST =================
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
                 "Quick quest",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
               ),
@@ -195,7 +224,7 @@ class HomeScreenBody extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // TITLE + XP
+                      // LEFT
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -219,7 +248,17 @@ class HomeScreenBody extends StatelessWidget {
 
                       // BUTTON
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CameraScreen(
+                                questTitle: quest["title"].toString(),
+                                xp: quest["xp"] as int,
+                              ),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
