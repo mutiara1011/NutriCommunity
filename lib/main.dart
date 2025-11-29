@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'main_screen.dart';
 import 'screens/history/history_screen_body.dart';
 
-void main() {
+late List<CameraDescription> cameras;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   runApp(const NutriCommunityApp());
 }
 
