@@ -36,7 +36,6 @@ class SettingsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
                   _menuItem(Icons.notifications, "Notifications"),
-                  _menuItem(Icons.star, "Achievements"),
                   _menuItem(
                     Icons.access_time,
                     "History",
@@ -144,12 +143,10 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       onPressed: () async {
-                        // hapus token
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.remove('token');
                         globalToken = null;
 
-                        // arahkan ke splash/login
                         if (context.mounted) {
                           Navigator.pushNamedAndRemoveUntil(
                             context,

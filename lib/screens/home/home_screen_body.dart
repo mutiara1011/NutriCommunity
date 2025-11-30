@@ -1,59 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../main.dart';
+import '../community/community_screen_body.dart';
+
 import '../quest/camera_screen.dart';
 import 'education_detail_screen.dart';
 
-class HomeScreenBody extends StatelessWidget {
+class HomeScreenBody extends StatefulWidget {
   const HomeScreenBody({super.key});
 
   @override
+  State<HomeScreenBody> createState() => _HomeScreenBodyState();
+}
+
+class _HomeScreenBodyState extends State<HomeScreenBody> {
+  List quests = [];
+  List articles = [];
+  String username = "";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUser();
+    fetchQuests();
+    fetchArticles();
+  }
+
+  Future<void> fetchUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString("username") ?? "User";
+    });
+  }
+
+  Future<void> fetchQuests() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+
+    final res = await http.get(
+      Uri.parse("$baseUrl/quest"),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body);
+      setState(() {
+        quests = data["data"] ?? [];
+      });
+    }
+  }
+
+  Future<void> fetchArticles() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+
+    final res = await http.get(
+      Uri.parse("$baseUrl/article"),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body);
+      setState(() {
+        articles = data["data"] ?? [];
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // DATA REKOMENDASI EDUKASI (non-nullable)
-    final List<Map<String, String>> recommendations = [
-      {
-        "title": "Makanan sehat yang mudah dilakukan",
-        "desc":
-            "Tambahkan 1 porsi buah setiap hari untuk meningkatkan asupan vitamin. Pilih buah seperti apel, pepaya, atau pisang yang mudah ditemukan.",
-      },
-      {
-        "title": "Pentingnya minum air putih",
-        "desc":
-            "Minum minimal 8 gelas air per hari membantu menjaga metabolisme tubuh serta meningkatkan konsentrasi.",
-      },
-    ];
-
-    // DATA QUEST
-    final quests = [
-      {"title": "Minum 1 gelas air", "xp": 10},
-      {"title": "Posting Pencapaian", "xp": 30},
-      {"title": "Beri like 1 postingan", "xp": 10},
-      {"title": "Makan 1 Porsi Buah", "xp": 15},
-    ];
-
-    int currentStreak = 5;
-    int maxStreak = 10;
-    double streakProgress = currentStreak / maxStreak;
+    double streakProgress = 5 / 10;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBEA),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 40),
-
-            // HEADER
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+              padding: const EdgeInsets.only(
+                top: 50,
+                bottom: 28,
+                left: 20,
+                right: 20,
+              ),
               decoration: const BoxDecoration(color: Color(0xFF398A57)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Hi, Mutiara",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFF9F4E7),
+                  Flexible(
+                    child: Text(
+                      "Hi, $username",
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFF9F4E7),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Container(
@@ -68,7 +113,6 @@ class HomeScreenBody extends StatelessWidget {
               ),
             ),
 
-            // STREAK CARD
             Container(
               padding: const EdgeInsets.all(22),
               decoration: const BoxDecoration(color: Color(0xFFFFFBEA)),
@@ -90,8 +134,6 @@ class HomeScreenBody extends StatelessWidget {
                         style: TextStyle(fontSize: 16, color: Colors.black54),
                       ),
                       const SizedBox(height: 12),
-
-                      // Progress bar
                       Stack(
                         children: [
                           Container(
@@ -115,7 +157,6 @@ class HomeScreenBody extends StatelessWidget {
                     ],
                   ),
 
-                  // XP
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
@@ -140,7 +181,6 @@ class HomeScreenBody extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // ================= RECOMMENDATION =================
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -150,52 +190,55 @@ class HomeScreenBody extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            Column(
-              children: List.generate(recommendations.length, (index) {
-                final item = recommendations[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EducationDetailScreen(
-                          title: item["title"]!, // sudah non-nullable
-                          desc: item["desc"]!,
-                        ),
+            ...articles.map((item) {
+              final imageUrl = "$baseUrl/images/articles/${item['image']}";
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EducationDetailScreen(
+                        title: item["title"] ?? "",
+                        paragraph1: item["first"] ?? "",
+                        paragraph2: item["second"] ?? "",
+                        paragraph3: item["third"],
+                        imageUrl: imageUrl,
+                        articleId: item["_id"],
                       ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 7,
                     ),
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8EED6),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item["title"]!,
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 7,
+                  ),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8EED6),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item["title"] ?? "",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 18),
-                      ],
-                    ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+                    ],
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }).toList(),
 
             const SizedBox(height: 30),
 
-            // =============== QUICK QUEST =================
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -205,39 +248,36 @@ class HomeScreenBody extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            Column(
-              children: List.generate(quests.length, (index) {
-                final quest = quests[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 7,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8EED6),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // LEFT
-                      Column(
+            ...quests.map((quest) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8EED6),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            quest["title"].toString(),
+                            quest["title"] ?? "",
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "+${quest["xp"]} Xp",
+                            "+${quest["xp_reward"] ?? 0} Xp",
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.black54,
@@ -245,41 +285,48 @@ class HomeScreenBody extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      // BUTTON
-                      ElevatedButton(
-                        onPressed: () {
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (quest["type"] == "food") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => CameraScreen(
-                                questTitle: quest["title"].toString(),
-                                xp: quest["xp"] as int,
+                                questTitle: quest["title"] ?? "",
+                                xp: quest["xp_reward"] ?? 0,
                               ),
                             ),
                           );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 10,
-                          ),
-                          backgroundColor: const Color(0xFFF0AB4C),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                        } else if (quest["type"] == "post") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CommunityScreenBody(),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
                         ),
-                        child: const Text(
-                          "Start",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        backgroundColor: const Color(0xFFF0AB4C),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }),
-            ),
+                      child: const Text(
+                        "Start",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
 
             const SizedBox(height: 80),
           ],
