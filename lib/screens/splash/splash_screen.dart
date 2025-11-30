@@ -9,7 +9,6 @@ class SplashScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF2E7D32),
       body: Stack(
         children: [
-          // 📌 BACKGROUND DI TENGAH
           Align(
             alignment: Alignment.center,
             child: Opacity(
@@ -22,9 +21,9 @@ class SplashScreen extends StatelessWidget {
             ),
           ),
 
-          // 📌 LOGO DI ATAS TENGAH (TIDAK IKUT KONTEN)
+          // Logo
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.175, // jarak dari atas
+            top: MediaQuery.of(context).size.height * 0.175,
             left: 0,
             right: 0,
             child: Center(
@@ -32,75 +31,89 @@ class SplashScreen extends StatelessWidget {
             ),
           ),
 
-          // 📌 KONTEN UTAMA DI TENGAH
+          // Content
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: 50),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+              ), // beri padding kiri-kanan
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
 
-                Text(
-                  "Selamat Datang",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                Text(
-                  "Yuk, mulai gaya hidup sehat bareng kami!",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-
-                SizedBox(height: 90),
-
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/login'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFFB300),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 65, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Masuk",
+                  const Text(
+                    "Selamat Datang",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 12),
-
-                OutlinedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/register'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white, width: 2),
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Daftar Akun Baru",
-                    style: TextStyle(
-                      fontSize: 18,
                       color: Colors.white,
+                      fontSize: 40,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
+
+                  const Text(
+                    "Yuk, mulai gaya hidup sehat bareng kami!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+
+                  const SizedBox(height: 90),
+
+                  SizedBox(
+                    width: double.infinity, // full width sesuai padding
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/login'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFB300),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Masuk",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/register'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white, width: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Daftar Akun Baru",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

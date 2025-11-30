@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../widgets/custom_textfield.dart';
+import '../../main.dart'; // untuk baseUrl
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,35 +25,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> registerUser() async {
-    if (username.text.isEmpty ||
-        email.text.isEmpty ||
-        password.text.isEmpty ||
-        confirmPassword.text.isEmpty) {
+    final user = username.text.trim();
+    final mail = email.text.trim();
+    final pass = password.text;
+    final confirm = confirmPassword.text;
+
+    if (user.isEmpty || mail.isEmpty || pass.isEmpty || confirm.isEmpty) {
       showMsg("Semua field harus diisi!");
       return;
     }
 
-    if (password.text != confirmPassword.text) {
+    if (pass != confirm) {
       showMsg("Password tidak sama!");
       return;
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      final url = Uri.parse('$baseUrl/user/register');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'username': user, 'email': mail, 'password': pass}),
+      );
 
-    // Cek email sudah dipakai
-    if (prefs.getString("email") == email.text) {
-      showMsg("Email sudah terdaftar!");
-      return;
+      // Cek apakah response body kosong
+      if (response.body.isEmpty) {
+        showMsg("Server tidak merespons atau body kosong");
+        return;
+      }
+
+      Map<String, dynamic> data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (e) {
+        showMsg("Response bukan JSON valid: ${response.body}");
+        return;
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final message = data['status']?['message'] ?? "Registrasi berhasil";
+        showMsg(message);
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        final message =
+            data['status']?['message'] ?? "Registrasi gagal, coba lagi";
+        showMsg(message);
+      }
+    } catch (e) {
+      showMsg("Terjadi kesalahan: $e");
     }
-
-    // Simpan data user
-    prefs.setString("username", username.text);
-    prefs.setString("email", email.text);
-    prefs.setString("password", password.text);
-
-    showMsg("Registrasi berhasil, silakan login!");
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -74,19 +98,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Image.asset('assets/images/logo.png', height: 80),
                 ),
                 const SizedBox(height: 10),
-
                 const Text(
                   "Register",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-
                 CustomTextField(controller: username, label: "Username"),
                 const SizedBox(height: 12),
-
                 CustomTextField(controller: email, label: "E-mail"),
                 const SizedBox(height: 12),
-
                 CustomTextField(
                   controller: password,
                   label: "Password",
@@ -95,7 +115,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onToggle: () => setState(() => obscurePass = !obscurePass),
                 ),
                 const SizedBox(height: 12),
-
                 CustomTextField(
                   controller: confirmPassword,
                   label: "Confirm Password",
@@ -104,9 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onToggle: () =>
                       setState(() => obscureConfirm = !obscureConfirm),
                 ),
-
                 const SizedBox(height: 20),
-
                 ElevatedButton(
                   onPressed: registerUser,
                   style: ElevatedButton.styleFrom(
@@ -119,9 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   child: const Text("Register"),
                 ),
-
                 const SizedBox(height: 12),
-
                 Center(
                   child: GestureDetector(
                     onTap: () {
