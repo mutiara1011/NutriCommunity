@@ -18,21 +18,38 @@ class HomeScreenBody extends StatefulWidget {
 class _HomeScreenBodyState extends State<HomeScreenBody> {
   List quests = [];
   List articles = [];
-  String username = "";
+  String username = "User";
+  int streak = 0;
+  int xp = 0;
+  double progress = 0;
 
   @override
   void initState() {
     super.initState();
-    fetchUser();
+    fetchProfile();
     fetchQuests();
     fetchArticles();
   }
 
-  Future<void> fetchUser() async {
+  Future<void> fetchProfile() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      username = prefs.getString("username") ?? "User";
-    });
+    final token = prefs.getString("token");
+    if (token == null) return;
+
+    final res = await http.get(
+      Uri.parse("$baseUrl/user_profile"),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body)["data"];
+      setState(() {
+        username = data["username"] ?? "User";
+        streak = data["streak"] ?? 0;
+        xp = data["exp"] ?? 0;
+        progress = data["progress"] ?? 0;
+      });
+    }
   }
 
   Future<void> fetchQuests() async {
@@ -71,13 +88,12 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
 
   @override
   Widget build(BuildContext context) {
-    double streakProgress = 5 / 10;
-
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBEA),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // HEADER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(
@@ -113,6 +129,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
               ),
             ),
 
+            // STREAK & XP
             Container(
               padding: const EdgeInsets.all(22),
               decoration: const BoxDecoration(color: Color(0xFFFFFBEA)),
@@ -129,9 +146,12 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const Text(
-                        "5 days",
-                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      Text(
+                        "$streak days",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Stack(
@@ -145,7 +165,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                             ),
                           ),
                           Container(
-                            width: 140 * streakProgress,
+                            width: 140 * progress,
                             height: 10,
                             decoration: BoxDecoration(
                               color: const Color(0xFF398A57),
@@ -156,7 +176,6 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                       ),
                     ],
                   ),
-
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
@@ -166,9 +185,9 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                       color: const Color(0xFFF0AB4C),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      "850 Xp",
-                      style: TextStyle(
+                    child: Text(
+                      "$xp Xp",
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
