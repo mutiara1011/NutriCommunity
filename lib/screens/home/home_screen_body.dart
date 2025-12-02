@@ -21,7 +21,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
   String username = "User";
   int streak = 0;
   int xp = 0;
-  double progress = 0;
+  int progress = 0;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         username = data["username"] ?? "User";
         streak = data["streak"] ?? 0;
         xp = data["exp"] ?? 0;
-        progress = data["progress"] ?? 0;
+        progress = data["progress"] ?? 10;
       });
     }
   }
@@ -154,25 +154,32 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Stack(
-                        children: [
-                          Container(
-                            width: 140,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD9D9D9),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          Container(
-                            width: 140 * progress,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF398A57),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ],
+                      Builder(
+                        builder: (context) {
+                          // progress dari API 1–10 → ubah ke 0.0–1.0
+                          double normalized = (progress / 10).clamp(0.0, 1.0);
+
+                          return Stack(
+                            children: [
+                              Container(
+                                width: 140,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD9D9D9),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              Container(
+                                width: 140 * normalized,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF398A57),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -312,6 +319,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => CameraScreen(
+                                questId: quest["_id"],
                                 questTitle: quest["title"] ?? "",
                                 xp: quest["xp_reward"] ?? 0,
                               ),

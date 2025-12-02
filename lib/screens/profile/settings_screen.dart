@@ -35,7 +35,6 @@ class SettingsScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
-                  _menuItem(Icons.notifications, "Notifications"),
                   _menuItem(
                     Icons.access_time,
                     "History",

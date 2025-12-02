@@ -9,14 +9,12 @@ class CommunityScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // <--- Tambahkan Scaffold
       backgroundColor: const Color(0xFFFFFBEA),
       body: DefaultTabController(
         length: 3,
         child: Column(
           children: [
             const SizedBox(height: 40),
-            // HEADER HIJAU
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),

@@ -1,16 +1,20 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../../services/quest_service.dart';
+import 'package:http/http.dart' as http;
+import '../../main.dart';
 import 'create_post_screen.dart';
+import 'dart:convert';
 
 class CompleteQuestScreen extends StatefulWidget {
+  final String questId;
   final String questTitle;
   final int xp;
   final File image;
 
   const CompleteQuestScreen({
     super.key,
+    required this.questId,
     required this.questTitle,
     required this.xp,
     required this.image,
@@ -40,6 +44,49 @@ class _CompleteQuestScreenState extends State<CompleteQuestScreen> {
     });
   }
 
+  Future<bool> _submitQuest() async {
+    final url = Uri.parse("$baseUrl/quest/complete");
+
+    final token = globalToken;
+    if (token == null) {
+      return false;
+    }
+
+    final body = {
+      "quest_id": widget.questId,
+      "exp_earned": widget.xp,
+      "completed_at": DateTime.now().toIso8601String(),
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("ERROR: $e");
+      return false;
+    }
+  }
+
+  Future<bool> _submitCompleteQuest() async {
+    try {
+      return await _submitQuest();
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +109,6 @@ class _CompleteQuestScreenState extends State<CompleteQuestScreen> {
 
               const SizedBox(height: 4),
 
-              // TITLE (rapat & modern)
               Text(
                 "Quest Selesai!",
                 style: TextStyle(
@@ -139,9 +185,9 @@ class _CompleteQuestScreenState extends State<CompleteQuestScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    QuestService.addXp(widget.xp);
-                    QuestService.addHistory(widget.questTitle, true, widget.xp);
+                  onPressed: () async {
+                    bool done = await _submitCompleteQuest();
+                    if (!done) return;
 
                     Navigator.push(
                       context,
@@ -170,11 +216,17 @@ class _CompleteQuestScreenState extends State<CompleteQuestScreen> {
 
               const SizedBox(height: 8),
 
+              /// BUTTON → LEWATI
               TextButton(
-                onPressed: () {
-                  QuestService.addXp(widget.xp);
-                  QuestService.addHistory(widget.questTitle, true, widget.xp);
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                onPressed: () async {
+                  bool done = await _submitCompleteQuest();
+                  if (!done) return;
+
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/main',
+                    (route) => false,
+                  );
                 },
                 child: Text(
                   "Lewati",

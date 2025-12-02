@@ -10,11 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 late List<CameraDescription> cameras;
 
 String? globalToken;
-const String baseUrl = "https://05q3b1gl-3000.asse.devtunnels.ms";
+const String baseUrl = "https://devlabfortirta.cloud/api-nutricom";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // load token persistennya
   final prefs = await SharedPreferences.getInstance();
   globalToken = prefs.getString('token');
 

@@ -6,10 +6,16 @@ import 'complete_quest_screen.dart';
 import '../../main.dart';
 
 class CameraScreen extends StatefulWidget {
+  final String questId;
   final String questTitle;
   final int xp;
 
-  const CameraScreen({super.key, required this.questTitle, required this.xp});
+  const CameraScreen({
+    super.key,
+    required this.questId,
+    required this.questTitle,
+    required this.xp,
+  });
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -134,6 +140,7 @@ class _CameraScreenState extends State<CameraScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => CompleteQuestScreen(
+          questId: widget.questId,
           questTitle: widget.questTitle,
           xp: widget.xp,
           image: merged,
