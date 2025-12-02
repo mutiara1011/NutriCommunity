@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../services/quest_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
+import '../../main.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final File image;
@@ -18,6 +21,48 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final captionController = TextEditingController();
+  bool isLoading = false;
+
+  Future<void> uploadPost() async {
+    setState(() => isLoading = true);
+
+    try {
+      final token = globalToken;
+      final url = Uri.parse("$baseUrl/post");
+
+      final mimeType = lookupMimeType(widget.image.path)!.split('/');
+
+      final request = http.MultipartRequest("POST", url)
+        ..headers["Authorization"] = "Bearer $token"
+        ..fields["description"] = captionController.text
+        ..files.add(
+          await http.MultipartFile.fromPath(
+            "image",
+            widget.image.path,
+            contentType: MediaType(mimeType[0], mimeType[1]),
+          ),
+        );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        Navigator.pushNamedAndRemoveUntil(context, "/main", (route) => false);
+      } else {
+        print("UPLOAD ERROR: $responseBody");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal mengunggah postingan")),
+        );
+      }
+    } catch (e) {
+      print("ERROR: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Terjadi kesalahan")));
+    }
+
+    setState(() => isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +89,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Label
+              // Label Caption
               Text(
                 "Tambahkan Caption",
                 style: TextStyle(
@@ -93,6 +138,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
               const SizedBox(height: 10),
 
+              // FOTO
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -109,9 +155,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   borderRadius: BorderRadius.circular(18),
                   child: Image.file(
                     widget.image,
-                    height: 240,
                     width: double.infinity,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain, // BIAR ASLI TIDAK KE-POTONG
                   ),
                 ),
               ),
@@ -121,11 +166,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    QuestService.addPost(captionController.text, widget.image);
-
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
+                  onPressed: isLoading ? null : uploadPost,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange.shade700,
                     foregroundColor: Colors.white,
@@ -135,10 +176,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     ),
                     elevation: 3,
                   ),
-                  child: const Text(
-                    "Posting",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          "Posting",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
